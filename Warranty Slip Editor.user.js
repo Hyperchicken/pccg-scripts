@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Edit warranty slips
 // @namespace   http://hyperchicken.com
-// @include     file:///C:/Users/petar/Desktop/Greasemonkey%20pccg/grease%20dev/Warranty%20Invoice*
+// @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
 // @version     0.6
 // @grant       none
 // ==/UserScript==
