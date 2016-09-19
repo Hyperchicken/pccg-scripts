@@ -2,7 +2,7 @@
 // @name        Warranty Slip Editor
 // @namespace   http://hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
-// @version     0.6
+// @version     0.61
 // @grant       none
 // ==/UserScript==
 
