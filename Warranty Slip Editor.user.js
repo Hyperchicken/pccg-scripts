@@ -2,7 +2,7 @@
 // @name        Warranty Slip Editor
 // @namespace   http://hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
-// @version     0.6
+// @version     0.61
 // @grant       none
 // ==/UserScript==
 
@@ -105,11 +105,11 @@ function saveShippingMethod() {
   if (selectedOptionText == '** Select shipping method **') selectedOptionText = 'eParcel Standard';
   shippingMethod.innerHTML = selectedOptionText;
   
-  if (selectedOptionText == 'eParcel Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ePS';
-  else if (selectedOptionText == 'eParcel PP Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ePS PP';
-  else if (selectedOptionText == 'eParcel Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ePE';
-  else if (selectedOptionText == 'Startrack Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - STS';
-  else if (selectedOptionText == 'Startrack Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - STE';
+  if (selectedOptionText == 'eParcel Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - eP S';
+  else if (selectedOptionText == 'eParcel PP Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - eP S PP';
+  else if (selectedOptionText == 'eParcel Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - eP E';
+  else if (selectedOptionText == 'Startrack Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ST S';
+  else if (selectedOptionText == 'Startrack Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ST E';
   else if (selectedOptionText == 'Store Pick Up') {
     warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip';
     shippingAddress.innerHTML = '<b>>>STORE PICKUP<<</b>'; }
