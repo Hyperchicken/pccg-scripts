@@ -3,7 +3,7 @@
 // @namespace   http://hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
 // @include		
-// @version     0.7
+// @version     0.70
 // @grant       none
 // ==/UserScript==
 
