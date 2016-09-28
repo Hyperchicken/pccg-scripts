@@ -2,7 +2,8 @@
 // @name        Warranty Slip Editor
 // @namespace   http://hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
-// @version     0.61
+// @include		
+// @version     0.7
 // @grant       none
 // ==/UserScript==
 
@@ -47,21 +48,92 @@ shippingMethod.addEventListener('click', editShippingMethod);
 
 //add hover effect
 var styling = document.createElement('style');
-styling.innerHTML = '.editable:hover{background-color:#00CCFF} .dataTableContent:hover{background-color:#00CCFF}'
+styling.innerHTML = '.editable:hover{background-color:#00CCFF} .dataTableContent:hover{background-color:#00CCFF} .dataTableRow td:nth-of-type(1):hover{background-color:#11CC44} .dataTableRow td:nth-of-type(2):hover{background-color:#CC1122} .dataTableRow td:nth-of-type(1):hover input[type="checkbox"]{visibility:hidden} .dataTableRow td:nth-of-type(2):hover input[type="checkbox"]{visibility:hidden}';
 document.body.appendChild(styling);
 
-
-
-//table elements clickable
-var i;
+var tableListenerHandler = [];
+var addRowListenerHandler = [];
+var deleteRowListenerHandler = [];
 var tableElements = document.getElementsByClassName('dataTableContent');
-var handler = [];
-for (i = 0; i < tableElements.length; i++) {
-  const elementIndex = i;
-  const elementText = tableElements[i].innerHTML;
-  handler[elementIndex] = function(){editTableElement(elementIndex)};
-  tableElements[elementIndex].addEventListener('click', handler[elementIndex]);
+
+makeTableElementsClickable();
+updateTableCheckboxButtons();
+
+
+function addNewRow(){
+  removeCurrentCheckboxButtonListeners();
+  var rowIndex = arguments[0];
+  var currentRow = document.querySelectorAll('.dataTableRow')[rowIndex];
+  var newRow = document.createElement('tr');
+  var tableElement = currentRow.parentElement;
+  newRow.setAttribute('class', 'dataTableRow');
+  newRow.innerHTML = currentRow.innerHTML;
+  tableElement.insertBefore(newRow, currentRow.nextSibling);
+  updateTableCheckboxButtons();
+  makeTableElementsClickable();
+  
 }
+
+function deleteRow(){
+  removeCurrentCheckboxButtonListeners();
+  var rowIndex = arguments[0];
+  var currentRow = document.querySelectorAll('.dataTableRow')[rowIndex];
+  var tableElement = currentRow.parentElement;
+  tableElement.removeChild(currentRow);
+  updateTableCheckboxButtons();
+  makeTableElementsClickable();
+}
+
+
+function makeTableElementsClickable() {
+  var i;
+  for (i = 0; i < tableElements.length; i++) {
+    const elementIndex = i;
+    const elementText = tableElements[i].innerHTML;
+    tableListenerHandler[elementIndex] = function(){editTableElement(elementIndex)};
+    tableElements[elementIndex].addEventListener('click', tableListenerHandler[elementIndex]);
+  }
+}
+
+//not yet used
+function removeTableElementListeners() {
+  var i;
+  for (i = 0; i < tableElements.length; i++) {
+    const elementIndex = i;
+    tableElements[elementIndex].removeEventListener('click', tableListenerHandler[elementIndex]);
+  }
+}
+
+function updateTableCheckboxButtons() {
+  var checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(1)');
+  for (i = 0; i < checkboxes.length; i++) {
+    const elementIndex = i;
+    addRowListenerHandler[elementIndex] = function(){addNewRow(elementIndex)};
+    checkboxes[elementIndex].addEventListener('click', addRowListenerHandler[elementIndex]);
+  }
+  checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(2)');
+  for (i = 0; i < checkboxes.length; i++) {
+    const elementIndex = i;
+    deleteRowListenerHandler[elementIndex] = function(){deleteRow(elementIndex)};
+    checkboxes[elementIndex].addEventListener('click', deleteRowListenerHandler[elementIndex]);
+  }
+  
+}
+
+function removeCurrentCheckboxButtonListeners() {
+  var checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(1)');
+  for (i = 0; i < checkboxes.length; i++) {
+    const elementIndex = i;
+    checkboxes[elementIndex].removeEventListener('click', addRowListenerHandler[elementIndex]);
+  }
+  checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(2)');
+  for (i = 0; i < checkboxes.length; i++) {
+    const elementIndex = i;
+    checkboxes[elementIndex].removeEventListener('click', deleteRowListenerHandler[elementIndex]);
+  }
+}
+
+
 
 function editShippingMethod() {
   shippingMethod.removeEventListener('click', editShippingMethod);
@@ -120,7 +192,7 @@ function saveShippingMethod() {
 
 function editTableElement() {
   const currentElement = arguments[0];
-  tableElements[currentElement].removeEventListener('click', handler[currentElement]); //may not work
+  tableElements[currentElement].removeEventListener('click', tableListenerHandler[currentElement]); //may not work
   var currentText = tableElements[currentElement].innerHTML;
   var newTextBox = document.createElement('input');
   
@@ -138,9 +210,10 @@ function saveTableElement() {
   
   const elementIndex = arguments[0];
   var inputText = tableElements[elementIndex].firstChild.value;
-  if (elementIndex == 7) inputText = '<b>' + inputText + '</b>';
+  if ((elementIndex + 1) % 8 == 0 && inputText.includes('<b>') == false) inputText = inputText.bold();
   tableElements[elementIndex].innerHTML = inputText;
-  tableElements[elementIndex].addEventListener('click', handler[elementIndex]);
+  tableElements[elementIndex].addEventListener('click', tableListenerHandler[elementIndex]);
+  // = '<b>' + inputText + '</b>';
 }
 
 function editRANumber() {
