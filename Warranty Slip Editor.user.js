@@ -3,15 +3,13 @@
 // @namespace   http://hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
 // @include		
-// @version     0.70
+// @version     1.0
 // @grant       none
 // ==/UserScript==
 
-//todo:
-// -product table editing
 
 
-
+//SELECTORS
 //shipping address box selector
 document.querySelector('body > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(3)').setAttribute('id', 'shippingAddress');
 shippingAddress.setAttribute('class', 'editable');
@@ -40,42 +38,80 @@ document.querySelector('body > table:nth-child(1) > tbody:nth-child(1) > tr:nth-
 document.querySelector('#prices2 > td:nth-child(2)').setAttribute('id', 'slipDate');
 slipDate.setAttribute('class', 'editable');
 
+
+//make non-dynamic boxes editable
 shippingAddressBox.addEventListener('click', editShippingAddress);
 billingAddressBox.addEventListener('click', editBillingAddress);
 ra_number.addEventListener('click', editRANumber);
 slipDate.addEventListener('click', editSlipDate);
 shippingMethod.addEventListener('click', editShippingMethod);
 
-//add hover effect
+
+//add styling (hover highlightin, etc)
 var styling = document.createElement('style');
-styling.innerHTML = '.editable:hover{background-color:#00CCFF} .dataTableContent:hover{background-color:#00CCFF} .dataTableRow td:nth-of-type(1):hover{background-color:#11CC44} .dataTableRow td:nth-of-type(2):hover{background-color:#CC1122} .dataTableRow td:nth-of-type(1):hover input[type="checkbox"]{visibility:hidden} .dataTableRow td:nth-of-type(2):hover input[type="checkbox"]{visibility:hidden}';
+styling.innerHTML = '.editable:hover{background-color:#33ccff}'
++ '.dataTableContent:hover{background-color:#33ccff}'
++ '.dataTableRow td:nth-of-type(1):hover{background-color:#11CC44}'
++ '.dataTableRow td:nth-of-type(2):hover{background-color:#CC1122}' 
++ '.dataTableRow td:nth-of-type(1):hover input[type="checkbox"]{visibility:hidden}'
++ '.dataTableRow td:nth-of-type(2):hover input[type="checkbox"]{visibility:hidden}'
++ '.dataTableRow td:nth-of-type(4):hover{background-color:#FF9933; width:50px}';
 document.body.appendChild(styling);
 
+
+
+
+//handlers to manage click listeners
 var tableListenerHandler = [];
 var addRowListenerHandler = [];
 var deleteRowListenerHandler = [];
 var tableElements = document.getElementsByClassName('dataTableContent');
 
+
+//initialise table
 makeTableElementsClickable();
 updateTableCheckboxButtons();
 
 
+
+//FUNCTIONS
+function addTooltips() {
+ //for (i = 0; )
+}
+
+//duplicates row to the product table (row index to duplicate as argument)
 function addNewRow(){
+  removeTableElementListeners();
   removeCurrentCheckboxButtonListeners();
+ 
   var rowIndex = arguments[0];
   var currentRow = document.querySelectorAll('.dataTableRow')[rowIndex];
   var newRow = document.createElement('tr');
   var tableElement = currentRow.parentElement;
+  var rowHTML = currentRow.innerHTML;
+  
+  if(arguments[1]) {
+    var rowString = arguments[1];
+    rowString.trim();
+    if(rowString.startsWith('<tr') && rowString.endsWith('</tr>')){
+        rowString.replace('<tr>', '');
+        rowString.replace('</tr', '');
+        rowHTML = rowString;
+      }
+    else alert('Invalid code! \n\nCode must start with \"<tr\" and end with \"</tr>\"');
+  }
+  
   newRow.setAttribute('class', 'dataTableRow');
-  newRow.innerHTML = currentRow.innerHTML;
+  newRow.innerHTML = rowHTML;
   tableElement.insertBefore(newRow, currentRow.nextSibling);
   updateTableCheckboxButtons();
   makeTableElementsClickable();
-  
 }
 
+//deletes row from the product table (row index argument)
 function deleteRow(){
   removeCurrentCheckboxButtonListeners();
+  removeTableElementListeners();
   var rowIndex = arguments[0];
   var currentRow = document.querySelectorAll('.dataTableRow')[rowIndex];
   var tableElement = currentRow.parentElement;
@@ -84,18 +120,18 @@ function deleteRow(){
   makeTableElementsClickable();
 }
 
-
+//makes table elements clickable
+//adds click listeners to each element in tableElements[] which calls editTableElement()
 function makeTableElementsClickable() {
   var i;
   for (i = 0; i < tableElements.length; i++) {
     const elementIndex = i;
-    const elementText = tableElements[i].innerHTML;
     tableListenerHandler[elementIndex] = function(){editTableElement(elementIndex)};
     tableElements[elementIndex].addEventListener('click', tableListenerHandler[elementIndex]);
   }
 }
 
-//not yet used
+//removes all click listeners from elements in tablElements[]
 function removeTableElementListeners() {
   var i;
   for (i = 0; i < tableElements.length; i++) {
@@ -104,6 +140,7 @@ function removeTableElementListeners() {
   }
 }
 
+//adds click listeners to the checkboxes in the table and assigns the left checkbox to addNewRow(), and the right checkbox to deleteRow().
 function updateTableCheckboxButtons() {
   var checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(1)');
   for (i = 0; i < checkboxes.length; i++) {
@@ -120,6 +157,7 @@ function updateTableCheckboxButtons() {
   
 }
 
+//removes all checkbox listeners
 function removeCurrentCheckboxButtonListeners() {
   var checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(1)');
   for (i = 0; i < checkboxes.length; i++) {
@@ -161,13 +199,11 @@ function editShippingMethod() {
   selectionBox.add(STS_option);
   selectionBox.add(STE_option);
   selectionBox.add(SPU_option);
-
   
   shippingMethod.innerHTML = '';
   shippingMethod.appendChild(selectionBox);
   
   selectionBox.focus();
-  
   selectionBox.addEventListener('blur', saveShippingMethod);
   selectionBox.addEventListener('change', saveShippingMethod);
 }
@@ -190,11 +226,16 @@ function saveShippingMethod() {
   shippingMethod.addEventListener('click', editShippingMethod);
 }
 
+
 function editTableElement() {
   const currentElement = arguments[0];
   tableElements[currentElement].removeEventListener('click', tableListenerHandler[currentElement]); //may not work
-  var currentText = tableElements[currentElement].innerHTML;
   var newTextBox = document.createElement('input');
+  var currentText = '';
+  
+  //make copy/paste column show whole row HTML
+  if ((currentElement - 1) % 8 == 0) currentText = '<tr class="dataTableRow">' + tableElements[currentElement].parentNode.innerHTML.trim() + '</tr>';
+  else currentText = tableElements[currentElement].innerHTML;
   
   newTextBox.setAttribute('type', 'text');
   newTextBox.setAttribute('value', currentText);
@@ -210,10 +251,18 @@ function saveTableElement() {
   
   const elementIndex = arguments[0];
   var inputText = tableElements[elementIndex].firstChild.value;
-  if ((elementIndex + 1) % 8 == 0 && inputText.includes('<b>') == false) inputText = inputText.bold();
-  tableElements[elementIndex].innerHTML = inputText;
-  tableElements[elementIndex].addEventListener('click', tableListenerHandler[elementIndex]);
-  // = '<b>' + inputText + '</b>';
+  
+  if ((elementIndex - 1) % 8 == 0) {
+    var row = Math.floor(elementIndex / 8);
+    tableElements[elementIndex].innerHTML = '&nbsp;';
+    addNewRow(row, inputText);
+    deleteRow(row);
+  }
+  else {
+    if ((elementIndex + 1) % 8 == 0 && inputText.includes('<b>') == false) inputText = inputText.bold();
+    tableElements[elementIndex].innerHTML = inputText;
+    tableElements[elementIndex].addEventListener('click', tableListenerHandler[elementIndex]);
+  }
 }
 
 function editRANumber() {
@@ -318,11 +367,6 @@ function saveSlipDate() {
   slipDate.addEventListener('click', editSlipDate);
 }
 
-function alert3() {
-  alert(arguments[0]);
-}
-
 function alert2() {
   alert('yay!');
-
 }
