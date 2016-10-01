@@ -3,7 +3,7 @@
 // @namespace   http://hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
 // @include		
-// @version     1.0
+// @version     1.1
 // @grant       none
 // ==/UserScript==
 
@@ -47,15 +47,22 @@ slipDate.addEventListener('click', editSlipDate);
 shippingMethod.addEventListener('click', editShippingMethod);
 
 
-//add styling (hover highlightin, etc)
+//add styling (hover highlighting, etc)
 var styling = document.createElement('style');
-styling.innerHTML = '.editable:hover{background-color:#33ccff}'
-+ '.dataTableContent:hover{background-color:#33ccff}'
-+ '.dataTableRow td:nth-of-type(1):hover{background-color:#11CC44}'
-+ '.dataTableRow td:nth-of-type(2):hover{background-color:#CC1122}' 
-+ '.dataTableRow td:nth-of-type(1):hover input[type="checkbox"]{visibility:hidden}'
-+ '.dataTableRow td:nth-of-type(2):hover input[type="checkbox"]{visibility:hidden}'
-+ '.dataTableRow td:nth-of-type(4):hover{background-color:#FF9933; width:50px}';
+styling.innerHTML = '.editable:hover{background-color:#33ccff;}' //non-table edit field hover colour
++ '.dataTableContent:hover{background-color:#33ccff;}' //edit table button colour
++ '.dataTableRow td:nth-of-type(1):hover{background-color:#11CC44;}' //new row button hover colour
++ '.dataTableRow td:nth-of-type(2):hover{background-color:#CC1122;}' //delete row button hover colour
++ '.dataTableRow td:nth-of-type(1):hover input[type="checkbox"]{visibility:hidden;}'
++ '.dataTableRow td:nth-of-type(2):hover input[type="checkbox"]{visibility:hidden;}'
++ '.dataTableRow td:nth-of-type(4):hover{background-color:#FF9933; width:50px}' //copy/paste button hover colour
++ '.dataTableRow td:nth-of-type(1), .dataTableRow td:nth-of-type(2), .dataTableRow td:nth-of-type(4) {display: table-cell; position: relative}'
++ '.dataTableRow td .tooltiptext {visibility: hidden; visibility: hidden; width: 100px; background-color: #000;  color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 120%; left: 40%; margin-left: -50px; pointer-events: none;}'
++ '.dataTableRow td:nth-of-type(1) .tooltiptext {}' 
++ '.dataTableRow td:nth-of-type(2) .tooltiptext {width: 80px; margin-left: -37px}' 
++ '.dataTableRow td:nth-of-type(4) .tooltiptext {width: 110px}' 
++ '.dataTableRow .tooltiptext::after {content: " "; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #000 transparent transparent transparent; pointer-events: none;}'
++ '.dataTableRow td:hover .tooltiptext {visibility: visible;}';
 document.body.appendChild(styling);
 
 
@@ -71,12 +78,35 @@ var tableElements = document.getElementsByClassName('dataTableContent');
 //initialise table
 makeTableElementsClickable();
 updateTableCheckboxButtons();
-
+addTooltips();
 
 
 //FUNCTIONS
 function addTooltips() {
- //for (i = 0; )
+  var addNewRowButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(1)')
+  var deleteRowButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(2)')
+  var copyPasteButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(4)')
+  
+  for (i = 0; i < addNewRowButtons.length; i++) {
+    var tooltip = document.createElement('span');
+    tooltip.setAttribute('class', 'tooltiptext');
+    tooltip.textContent = 'Duplicate row';
+    addNewRowButtons[i].appendChild(tooltip);
+  }
+  
+  for (i = 0; i < deleteRowButtons.length; i++) {
+    var tooltip = document.createElement('span');
+    tooltip.setAttribute('class', 'tooltiptext');
+    tooltip.textContent = 'Delete row';
+    deleteRowButtons[i].appendChild(tooltip);
+  }
+  
+  for (i = 0; i < copyPasteButtons.length; i++) {
+    var tooltip = document.createElement('span');
+    tooltip.setAttribute('class', 'tooltiptext');
+    tooltip.textContent = 'Copy/paste row';
+    copyPasteButtons[i].appendChild(tooltip);
+  }
 }
 
 //duplicates row to the product table (row index to duplicate as argument)
