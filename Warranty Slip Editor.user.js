@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        Warranty Slip Editor
 // @namespace   http://hyperchicken.com
-// @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*
-// @include		
+// @description Adds the ability to edit the values in a warranty slip, including adding/deleting rows to the product table and setting the shipping method. By Petar Stankovic.
+// @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*	
 // @version     1.1
 // @grant       none
 // ==/UserScript==
