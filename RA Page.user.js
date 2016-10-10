@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        RA Page
+// @name        RA Page Enhancements
 // @namespace   www.hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_request.php?*
 // @version     1.0
