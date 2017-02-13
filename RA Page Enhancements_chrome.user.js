@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.2
+// @version      1.3
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -14,6 +14,7 @@ var orderNumberElement = document.querySelector('#warranty_edit > table:nth-chil
 var productDescription = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var emailElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(9) > td:nth-child(2) > a:nth-child(2)');
 var serialnoElement = document.querySelector('#serialno');
+var supplierRAElement = document.querySelector('#supplier_ra');
 
 if(typeof products_id !== 'undefined') {
   document.title = 'RA ' + rano.value + ' - ' + products_id.nextElementSibling.textContent;
@@ -29,6 +30,7 @@ addCopyClipboardButton(serialnoElement);
 addCopyClipboardButton(orderNumberElement);
 addCopyClipboardButton(emailElement);
 addCopyClipboardButton(rano);
+addCopyClipboardButton(supplierRAElement);
 addEmailSearchButton();
 addProductCodeSearchButton();
 
