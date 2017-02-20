@@ -3,7 +3,7 @@
 // @namespace   http://hyperchicken.com
 // @description Adds the ability to edit the values in a warranty slip, including adding/deleting rows to the product table and setting the shipping method. By Petar Stankovic.
 // @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*	
-// @version     1.1
+// @version     1.2
 // @grant       none
 // ==/UserScript==
 
@@ -224,7 +224,7 @@ function editShippingMethod() {
   SPU_option.text = 'Store Pick Up';
   selectionBox.add(dummy_option);
   selectionBox.add(EPS_option);
-  selectionBox.add(EPSPP_option);
+  //selectionBox.add(EPSPP_option);
   selectionBox.add(EPE_option);
   selectionBox.add(STS_option);
   selectionBox.add(STE_option);
