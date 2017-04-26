@@ -2,7 +2,7 @@
 // @name        RA Page Enhancements
 // @namespace   www.hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_request.php?*
-// @version     1.3
+// @version     1.4
 // @grant       GM_setClipboard
 // ==/UserScript==
 
