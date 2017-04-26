@@ -2,8 +2,6 @@
 // @name        RA Page Enhancements
 // @namespace   www.hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_request.php?*
-// @include     file:///C:/Users/petar/Desktop/Programming/pccg-scripts/samples/Warranties%20-%20PC%20Case%20Gear.htm
-// @match       file:///C:/Users/petar/Desktop/Programming/pccg-scripts/samples/Warranties%20-%20PC%20Case%20Gear.htm
 // @version     1.3
 // @grant       GM_setClipboard
 // ==/UserScript==
