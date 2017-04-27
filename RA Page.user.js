@@ -2,7 +2,7 @@
 // @name        RA Page Enhancements
 // @namespace   www.hyperchicken.com
 // @include     https://www.pccasegear.com/elgg/warranty_request.php?*
-// @version     1.4
+// @version     1.5
 // @grant       GM_setClipboard
 // ==/UserScript==
 
@@ -73,7 +73,7 @@ function addCopyClipboardButton(element) {
   else elementText = element.textContent;
   buttonElement.style.marginLeft = '20';
   buttonElement.setAttribute('class', 'redButton');
-  buttonElement.setAttribute('href', '#');
+  buttonElement.setAttribute('href', '');
   //buttonElement.style.color = '#c00';
   buttonElement.appendChild(buttonText);
   buttonElement.addEventListener('click', function(){GM_setClipboard(elementText);});
