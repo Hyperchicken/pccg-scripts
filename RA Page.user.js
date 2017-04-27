@@ -73,7 +73,7 @@ function addCopyClipboardButton(element) {
   else elementText = element.textContent;
   buttonElement.style.marginLeft = '20';
   buttonElement.setAttribute('class', 'redButton');
-  buttonElement.setAttribute('href', '');
+  //buttonElement.setAttribute('href', '#');
   //buttonElement.style.color = '#c00';
   buttonElement.appendChild(buttonText);
   buttonElement.addEventListener('click', function(){GM_setClipboard(elementText);});
