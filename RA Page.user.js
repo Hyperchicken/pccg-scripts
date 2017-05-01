@@ -1,18 +1,20 @@
 // ==UserScript==
-// @name        RA Page Enhancements
-// @namespace   www.hyperchicken.com
-// @include     https://www.pccasegear.com/elgg/warranty_request.php?*
-// @version     1.5
-// @grant       GM_setClipboard
+// @name         RA Page Enhancements
+// @namespace    www.hyperchicken.com
+// @version      1.6
+// @description  Adds new buttons and features to warranty claim pages.
+// @author       Petar Stankovic
+// @match        https://www.pccasegear.com/elgg/warranty_request.php?*
+// @grant        GM_setClipboard
 // ==/UserScript==
-
-
 
 var productDescriptionElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
 var orderNumberElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(13) > td:nth-child(2) > a:nth-child(1)');
 var productDescription = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var emailElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(9) > td:nth-child(2) > a:nth-child(2)');
+var serialnoElement = document.querySelector('#serialno');
+var supplierRAElement = document.querySelector('#supplier_ra');
 var pccgCommentTitle = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(14) > td:nth-child(2) > span.formAreaTitle');
 
 if(typeof products_id !== 'undefined') {
@@ -25,7 +27,8 @@ else {
 
 addCopyClipboardButton(productDescriptionElement);
 addCopyClipboardButton(productCodeElement);
-addCopyClipboardButton(serialno);
+addCopyClipboardButton(serialnoElement);
+addCopyClipboardButton(supplierRAElement);
 addCopyClipboardButton(orderNumberElement);
 addCopyClipboardButton(emailElement);
 addCopyClipboardButton(rano);
