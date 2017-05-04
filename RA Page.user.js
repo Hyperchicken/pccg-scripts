@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.7
+// @version      1.8
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -157,16 +157,16 @@ function addCopyClipboardButton(element) {
 }
 
 var styling = document.createElement('style');
-styling.innerHTML = '.linkButton{padding: 2px 3px 2px 3px; color: black;  border-width: 2px; border-radius: 4px; background-color: #b3ffcc}' +
+styling.innerHTML = '.linkButton{padding: 2px 3px 2px 3px; color: black;  border-width: 2px; border-radius: 4px; background-color: #b3ffcc; display: inline-block}' +
     '.linkButton:hover{color: black; text-decoration: none; background-color: #80ffaa;}' +
     '.linkButton:active{background-color: #33ff77;}' +
-    '.copyButton{padding: 2px 3px 2px 3px;  border-width: 2px; color: black; border-radius: 4px; background-color: #e0ccff; cursor: default}' +
+    '.copyButton{padding: 2px 3px 2px 3px;  border-width: 2px; color: black; border-radius: 4px; background-color: #e0ccff; cursor: default; display: inline-block}' +
     '.copyButton:hover{color: black; text-decoration: none; background-color: #d1b3ff;}' +
     '.copyButton:active{background-color: #b380ff;}' +
     '.topBarButton{margin: 3px 20px 3px 20px; font-size: 10pt; font-weight: bold; padding: 2px 3px 2px 3px; color: white;  border-width: 2px; border-radius: 4px; background-color: #0000ff; cursor: default}' +
     '.topBarButton:hover{color: white; text-decoration: none; background-color: #0000b3;}' +
     '.topBarButton:active{color: white; background-color: #6600cc;}' +
-    '.autofillButton{padding: 2px 3px 2px 3px;  border-width: 2px; color: black; border-radius: 4px; background-color: #ffe8cc; cursor: default}' +
+    '.autofillButton{padding: 2px 3px 2px 3px;  border-width: 2px; color: black; border-radius: 4px; background-color: #ffe8cc; cursor: default; display: inline-block}' +
     '.autofillButton:hover{color: black; text-decoration: none; background-color: #f9d5a8;}' +
     '.autofillButton:active{background-color: #f7c382;}';
 document.body.appendChild(styling);
