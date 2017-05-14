@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.8
+// @version      1.9
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -22,6 +22,7 @@ var PCCGCommentsElement = document.querySelector('#admin_note');
 var raStatusElement = document.querySelector('#status');
 var notifyCustomerCheckboxElement = document.querySelector('#notify');
 
+var productId = getProductId();
 
 var month = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
@@ -45,6 +46,52 @@ addEmailSearchButton();
 addProductCodeSearchButton();
 addAcrAutofillButton();
 addEmailAutofillButton();
+
+//add check components button if a system RA
+if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('system')) {
+    loadSystemComponents();
+    addSystemComponentsButton();
+}
+
+function getProductId() {
+    var hyperlink = productDescriptionElement.getAttributeNode('href').value;
+    var index = hyperlink.lastIndexOf('products_id=');
+    return hyperlink.substr(index + 'products_id='.length);
+}
+
+function addSystemComponentsButton() {
+    var buttonElement = document.createElement('a');
+    var dropdownDiv = document.createElement('div');
+    var buttonText = document.createTextNode('System Components');
+    dropdownDiv.setAttribute('class', 'dropdown');
+    dropdownDiv.setAttribute('id', 'sysComponentsBox');
+    buttonElement.setAttribute('class', 'funcButton bodyButton');
+    buttonElement.setAttribute('id', 'sysComponentsBtn');
+    dropdownDiv.appendChild(buttonElement);
+    buttonElement.appendChild(buttonText);
+    buttonElement.addEventListener('click', function(){if(document.querySelector('#dropdownBox') !== null) document.querySelector('#dropdownBox').style.display = 'block';});
+    productDescriptionElement.parentElement.appendChild(dropdownDiv);
+}
+
+function loadSystemComponents() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var dropdownBox = document.createElement('div');
+            dropdownBox.setAttribute('class', 'dropdown-content');
+            dropdownBox.setAttribute('id', 'dropdownBox');
+            dropdownBox.style.display = 'none';
+            dropdownBox.appendChild(xhr.responseXML.querySelectorAll('b~ul')[0]);
+            dropdownBox.addEventListener('mouseleave', function(){document.querySelector('#dropdownBox').style.display = 'none';});
+            document.querySelector('#sysComponentsBox').appendChild(dropdownBox);
+        }
+        if (this.readyState == 4 && this.status != 200) document.getElementById('sysComponentsBtn').textContent = 'System Components (' + this.statusText + ')';
+    };
+    //xhr.open("GET", "Product Preview.htm", true); //testing code
+    xhr.open("GET", "product.php?cPath=&pID=" + productId + "&action=new_product_preview&read=only&product_type=1&", true);
+    xhr.responseType = "document";
+    xhr.send();
+}
 
 function addMarkInButton() {
     var buttonElement = document.createElement('a');
@@ -70,6 +117,8 @@ function markIn(){
     notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = 'red';
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
+    document.getElementById('pccg-comment-btn').addEventListener('click', function(){PCCGCommentsElement.style.borderColor = '#00ff00';});
+    document.getElementById('status-btn').addEventListener('click', function(){raStatusElement.style.borderColor = '#00ff00'; notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = '#00ff00';});
 }
 
 function addEmailSearchButton() {
@@ -78,8 +127,7 @@ function addEmailSearchButton() {
     var buttonText = document.createTextNode('RA Search');
     buttonElement.setAttribute('href', 'https://www.pccasegear.com/elgg/warranty_request.php?tech_name_sear=0&serialno1=&product_id=&name=&supplier_ra=&serialno=&status1=&return_reason=0&WarrantyEmail=' + email + '&Submit=Search');
     buttonElement.setAttribute('target', '_blank');
-    buttonElement.setAttribute('class', 'linkButton');
-    buttonElement.style.marginLeft = '20';
+    buttonElement.setAttribute('class', 'linkButton bodyButton');
     buttonElement.appendChild(buttonText);
     emailElement.parentElement.appendChild(buttonElement);
 }
@@ -87,9 +135,8 @@ function addEmailSearchButton() {
 function addAcrAutofillButton() {
     var buttonElement = document.createElement('a');
     var buttonText = document.createTextNode('Autofill: ACR');
-    buttonElement.setAttribute('class', 'autofillButton');
+    buttonElement.setAttribute('class', 'autofillButton bodyButton');
     buttonElement.setAttribute('id', 'acrAF');
-    buttonElement.style.marginLeft = '20';
     buttonElement.appendChild(buttonText);
     supplierRAElement.parentElement.appendChild(buttonElement);
     buttonElement.addEventListener('click', function(){acrAutofill();});
@@ -99,7 +146,7 @@ function acrAutofill() {
     var d = new Date();
     var thisButton = document.querySelector('#acrAF');
     supplierRAElement.value = 'ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2);
-    supplierRAElement.focus();
+    supplierRAElement.select();
     supplierRAElement.style.borderColor = 'red';
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
@@ -108,9 +155,8 @@ function acrAutofill() {
 function addEmailAutofillButton() {
     var buttonElement = document.createElement('a');
     var buttonText = document.createTextNode('Autofill: Email');
-    buttonElement.setAttribute('class', 'autofillButton');
+    buttonElement.setAttribute('class', 'autofillButton bodyButton');
     buttonElement.setAttribute('id', 'emailAF');
-    buttonElement.style.marginLeft = '20';
     buttonElement.appendChild(buttonText);
     emailElement.parentElement.appendChild(buttonElement);
     buttonElement.addEventListener('click', function(){emailAutofill();});
@@ -127,6 +173,8 @@ function emailAutofill() {
     notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = 'red';
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
+    document.getElementById('pccg-comment-btn').addEventListener('click', function(){PCCGCommentsElement.style.borderColor = '#00ff00';});
+    document.getElementById('status-btn').addEventListener('click', function(){raStatusElement.style.borderColor = '#00ff00'; notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = '#00ff00';});
 }
 
 function addProductCodeSearchButton() {
@@ -136,8 +184,7 @@ function addProductCodeSearchButton() {
     var buttonText = document.createTextNode('Product Search');
     buttonElement.setAttribute('href', 'https://www.pccasegear.com/elgg/categories.php?search=' + productCode + '&search_include_disabled=1&search_model=1');
     buttonElement.setAttribute('target', '_blank');
-    buttonElement.setAttribute('class', 'linkButton');
-    buttonElement.style.marginLeft = '10';
+    buttonElement.setAttribute('class', 'linkButton bodyButton');
     buttonElement.appendChild(buttonText);
     productCodeElement.parentElement.appendChild(buttonElement);
 }
@@ -149,24 +196,30 @@ function addCopyClipboardButton(element) {
     var buttonText = document.createTextNode('Copy');
     if(element.nodeName == 'INPUT') elementText = element.value;
     else elementText = element.textContent;
-    buttonElement.style.marginLeft = '20';
-    buttonElement.setAttribute('class', 'copyButton');
+    buttonElement.setAttribute('class', 'copyButton bodyButton');
     buttonElement.appendChild(buttonText);
     buttonElement.addEventListener('click', function(){GM_setClipboard(elementText);});
     element.parentElement.appendChild(buttonElement);
 }
 
 var styling = document.createElement('style');
-styling.innerHTML = '.linkButton{padding: 2px 3px 2px 3px; color: black;  border-width: 2px; border-radius: 4px; background-color: #b3ffcc; display: inline-block}' +
-    '.linkButton:hover{color: black; text-decoration: none; background-color: #80ffaa;}' +
+styling.innerHTML = '.bodyButton{margin-left: 10; padding: 2px 3px 2px 3px; color: black;  border-width: 2px; border-radius: 4px; display: inline-block;}' +
+    '.bodyButton:hover{color: black;  text-decoration: none;}' +
+    '.linkButton{background-color: #b3ffcc;}' +
+    '.linkButton:hover{background-color: #80ffaa;}' +
     '.linkButton:active{background-color: #33ff77;}' +
-    '.copyButton{padding: 2px 3px 2px 3px;  border-width: 2px; color: black; border-radius: 4px; background-color: #e0ccff; cursor: default; display: inline-block}' +
-    '.copyButton:hover{color: black; text-decoration: none; background-color: #d1b3ff;}' +
+    '.copyButton{background-color: #e0ccff; cursor: default;}' +
+    '.copyButton:hover{background-color: #d1b3ff;}' +
     '.copyButton:active{background-color: #b380ff;}' +
     '.topBarButton{margin: 3px 20px 3px 20px; font-size: 10pt; font-weight: bold; padding: 2px 3px 2px 3px; color: white;  border-width: 2px; border-radius: 4px; background-color: #0000ff; cursor: default}' +
     '.topBarButton:hover{color: white; text-decoration: none; background-color: #0000b3;}' +
     '.topBarButton:active{color: white; background-color: #6600cc;}' +
-    '.autofillButton{padding: 2px 3px 2px 3px;  border-width: 2px; color: black; border-radius: 4px; background-color: #ffe8cc; cursor: default; display: inline-block}' +
-    '.autofillButton:hover{color: black; text-decoration: none; background-color: #f9d5a8;}' +
-    '.autofillButton:active{background-color: #f7c382;}';
+    '.autofillButton{background-color: #ffe8cc; cursor: default;}' +
+    '.autofillButton:hover{background-color: #ffb3e6;}' +
+    '.autofillButton:active{background-color: #ff80d5;}' +
+    '.funcButton{background-color: #ffccee; cursor: default;}' +
+    '.funcButton:hover{background-color: #ffb3e6;}' +
+    '.funcButton:active{background-color: #ff80d5;}' +
+    '.dropdown{position: relative; display: inline-block;}' +
+    '.dropdown-content {display: none; position: absolute; background-color: #f9f9f9; min-width: 600px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); padding: 5px 5px 5px 0px; z-index: 1;}';
 document.body.appendChild(styling);
