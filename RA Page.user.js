@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.9
+// @version      1.10
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -50,7 +50,11 @@ addEmailAutofillButton();
 //add check components button if a system RA
 if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('system')) {
     loadSystemComponents();
-    addSystemComponentsButton();
+    addSystemComponentsButton('System Components');
+}
+else if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('bundle')) {
+    loadSystemComponents();
+    addSystemComponentsButton('Bundle Contents');
 }
 
 function getProductId() {
@@ -59,10 +63,10 @@ function getProductId() {
     return hyperlink.substr(index + 'products_id='.length);
 }
 
-function addSystemComponentsButton() {
+function addSystemComponentsButton(buttonText) {
     var buttonElement = document.createElement('a');
     var dropdownDiv = document.createElement('div');
-    var buttonText = document.createTextNode('System Components');
+    var buttonText = document.createTextNode(buttonText);
     dropdownDiv.setAttribute('class', 'dropdown');
     dropdownDiv.setAttribute('id', 'sysComponentsBox');
     buttonElement.setAttribute('class', 'funcButton bodyButton');
@@ -78,10 +82,11 @@ function loadSystemComponents() {
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var dropdownBox = document.createElement('div');
+            var componentsHTML = xhr.responseXML.querySelectorAll('b~ul')[0];
             dropdownBox.setAttribute('class', 'dropdown-content');
             dropdownBox.setAttribute('id', 'dropdownBox');
             dropdownBox.style.display = 'none';
-            dropdownBox.appendChild(xhr.responseXML.querySelectorAll('b~ul')[0]);
+            dropdownBox.appendChild(componentsHTML);
             dropdownBox.addEventListener('mouseleave', function(){document.querySelector('#dropdownBox').style.display = 'none';});
             document.querySelector('#sysComponentsBox').appendChild(dropdownBox);
         }
