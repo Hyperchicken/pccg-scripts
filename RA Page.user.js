@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.10
+// @version      1.11
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -187,7 +187,7 @@ function addProductCodeSearchButton() {
     var productCode = productCodeElement.textContent;
     var buttonElement = document.createElement('a');
     var buttonText = document.createTextNode('Product Search');
-    buttonElement.setAttribute('href', 'https://www.pccasegear.com/elgg/categories.php?search=' + productCode + '&search_include_disabled=1&search_model=1');
+    buttonElement.setAttribute('href', 'https://www.pccasegear.com/elgg/categories.php?search=' + encodeURIComponent(productCode) + '&search_include_disabled=1&search_model=1');
     buttonElement.setAttribute('target', '_blank');
     buttonElement.setAttribute('class', 'linkButton bodyButton');
     buttonElement.appendChild(buttonText);
@@ -220,8 +220,8 @@ styling.innerHTML = '.bodyButton{margin-left: 10; padding: 2px 3px 2px 3px; colo
     '.topBarButton:hover{color: white; text-decoration: none; background-color: #0000b3;}' +
     '.topBarButton:active{color: white; background-color: #6600cc;}' +
     '.autofillButton{background-color: #ffe8cc; cursor: default;}' +
-    '.autofillButton:hover{background-color: #ffb3e6;}' +
-    '.autofillButton:active{background-color: #ff80d5;}' +
+    '.autofillButton:hover{background-color: #ffd199;}' +
+    '.autofillButton:active{background-color: #ffba66;}' +
     '.funcButton{background-color: #ffccee; cursor: default;}' +
     '.funcButton:hover{background-color: #ffb3e6;}' +
     '.funcButton:active{background-color: #ff80d5;}' +
