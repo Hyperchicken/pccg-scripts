@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.11
+// @version      1.12
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
 // @grant        GM_setClipboard
 // ==/UserScript==
+debugger;
+
 
 var productDescriptionElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
@@ -46,6 +48,7 @@ addEmailSearchButton();
 addProductCodeSearchButton();
 addAcrAutofillButton();
 addEmailAutofillButton();
+//highlightQty();
 
 //add check components button if a system RA
 if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('system')) {
@@ -57,16 +60,31 @@ else if(productDescription.textContent.toLowerCase().includes('pccg') && product
     addSystemComponentsButton('Bundle Contents');
 }
 
+function highlightQty(){
+    var qtyArea = productCodeElement.parentNode;
+    var qtyAreaText = qtyArea.textContent;
+    var qtyIndex = qtyAreaText.indexOf('Qty:') + 5;
+    var qty;
+    qtyAreaText = qtyAreaText.slice(qtyIndex);
+    var i = 0;
+    var done = false;
+    do{
+        if(isNaN(qtyAreaText.charAt(i))) done = true;
+        else{i++;}
+    }while(!done);
+    qty = qtyAreaText.substr(0, i);
+}
+
 function getProductId() {
     var hyperlink = productDescriptionElement.getAttributeNode('href').value;
     var index = hyperlink.lastIndexOf('products_id=');
     return hyperlink.substr(index + 'products_id='.length);
 }
 
-function addSystemComponentsButton(buttonText) {
+function addSystemComponentsButton(newButtonText) {
     var buttonElement = document.createElement('a');
     var dropdownDiv = document.createElement('div');
-    var buttonText = document.createTextNode(buttonText);
+    var buttonText = document.createTextNode(newButtonText);
     dropdownDiv.setAttribute('class', 'dropdown');
     dropdownDiv.setAttribute('id', 'sysComponentsBox');
     buttonElement.setAttribute('class', 'funcButton bodyButton');
@@ -86,6 +104,8 @@ function loadSystemComponents() {
             dropdownBox.setAttribute('class', 'dropdown-content');
             dropdownBox.setAttribute('id', 'dropdownBox');
             dropdownBox.style.display = 'none';
+            var componentLinks = componentsHTML.getElementsByTagName('a');
+            for (var i = 0; i < componentLinks.length; i++) {componentLinks[i].setAttribute('target', '_blank;');} //make links open in new tab
             dropdownBox.appendChild(componentsHTML);
             dropdownBox.addEventListener('mouseleave', function(){document.querySelector('#dropdownBox').style.display = 'none';});
             document.querySelector('#sysComponentsBox').appendChild(dropdownBox);
@@ -111,19 +131,11 @@ function addMarkInButton() {
 function markIn(){
     var d = new Date();
     var thisButton = document.querySelector('#markInAF');
-    supplierRAElement.value = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + ' - Item Received';
-    PCCGCommentsElement.value = 'Your item has been received and is in the queue for processing.';
-    raStatusElement.value = 'Item received';
-    notifyCustomerCheckboxElement.checked = false;
-    supplierRAElement.style.borderColor = 'red';
-    PCCGCommentsElement.style.borderColor = 'red';
-    raStatusElement.style.borderColor = 'red';
-    notifyCustomerCheckboxElement.previousElementSibling.style.textDecoration = 'underline';
-    notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = 'red';
+    autofillSupplierRA(('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + ' - Item Received');
+    autofillPCCGComment('Your item has been received and is in the queue for processing.');
+    autofillStatus('Item received');
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
-    document.getElementById('pccg-comment-btn').addEventListener('click', function(){PCCGCommentsElement.style.borderColor = '#00ff00';});
-    document.getElementById('status-btn').addEventListener('click', function(){raStatusElement.style.borderColor = '#00ff00'; notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = '#00ff00';});
 }
 
 function addEmailSearchButton() {
@@ -148,11 +160,11 @@ function addAcrAutofillButton() {
 }
 
 function acrAutofill() {
+    alert('b');
     var d = new Date();
     var thisButton = document.querySelector('#acrAF');
-    supplierRAElement.value = 'ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2);
+    autofillSupplierRA('ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2));
     supplierRAElement.select();
-    supplierRAElement.style.borderColor = 'red';
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
 }
@@ -169,17 +181,30 @@ function addEmailAutofillButton() {
 
 function emailAutofill() {
     var thisButton = document.querySelector('#emailAF');
-    PCCGCommentsElement.value = 'We have sent an email to ' + emailElement.textContent + '.';
-    raStatusElement.value = 'Awaiting customer response';
-    notifyCustomerCheckboxElement.checked = false;
+    autofillPCCGComment('We have sent an email to ' + emailElement.textContent + '.');
+    autofillStatus('Awaiting customer response');
+    thisButton.style.borderStyle = 'solid';
+    thisButton.style.borderColor = 'red';
+}
+
+function autofillPCCGComment(newText) {
+    PCCGCommentsElement.value = newText;
     PCCGCommentsElement.style.borderColor = 'red';
+    document.getElementById('pccg-comment-btn').addEventListener('click', function(){PCCGCommentsElement.style.borderColor = '#00ff00';});
+}
+
+function autofillStatus(newStatus) {
+    raStatusElement.value = newStatus;
+    notifyCustomerCheckboxElement.checked = false;
     raStatusElement.style.borderColor = 'red';
     notifyCustomerCheckboxElement.previousElementSibling.style.textDecoration = 'underline';
     notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = 'red';
-    thisButton.style.borderStyle = 'solid';
-    thisButton.style.borderColor = 'red';
-    document.getElementById('pccg-comment-btn').addEventListener('click', function(){PCCGCommentsElement.style.borderColor = '#00ff00';});
     document.getElementById('status-btn').addEventListener('click', function(){raStatusElement.style.borderColor = '#00ff00'; notifyCustomerCheckboxElement.previousElementSibling.style.textDecorationColor = '#00ff00';});
+}
+
+function autofillSupplierRA(newText) {
+    supplierRAElement.value = newText;
+    supplierRAElement.style.borderColor = 'red';
 }
 
 function addProductCodeSearchButton() {
