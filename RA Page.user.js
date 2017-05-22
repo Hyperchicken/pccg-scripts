@@ -7,7 +7,6 @@
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
 // @grant        GM_setClipboard
 // ==/UserScript==
-debugger;
 
 
 var productDescriptionElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
