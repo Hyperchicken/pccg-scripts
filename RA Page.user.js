@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.12
+// @version      1.13
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
