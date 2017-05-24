@@ -159,7 +159,6 @@ function addAcrAutofillButton() {
 }
 
 function acrAutofill() {
-    alert('b');
     var d = new Date();
     var thisButton = document.querySelector('#acrAF');
     autofillSupplierRA('ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2));
