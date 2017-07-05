@@ -74,6 +74,7 @@ function getStockOnHand() {
             var sohElement = document.createElement('span');
             sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
             sohElement.style.float = 'right';
+            sohElement.setAttribute('title', 'Stock On Hand (refresh page to update)');
             sohArea.parentElement.appendChild(sohElement);
         }
     };
