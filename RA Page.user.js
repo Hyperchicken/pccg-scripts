@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.13
+// @version      1.14
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -22,10 +22,12 @@ var openLinkElement = document.querySelector('body > table:nth-child(5) > tbody 
 var PCCGCommentsElement = document.querySelector('#admin_note');
 var raStatusElement = document.querySelector('#status');
 var notifyCustomerCheckboxElement = document.querySelector('#notify');
-
 var productId = getProductId();
-
+var sohArea = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(8) > td:nth-child(5) > br:nth-child(5)');
 var month = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+var productSOH = getStockOnHand();
+
+document.querySelector('#warranty_edit > table > tbody > tr:nth-child(6) > td:nth-child(4)').textContent = 'Stock on Hand:';
 
 if(typeof products_id !== 'undefined') {
     document.title = 'RA ' + rano.value + ' - ' + products_id.nextElementSibling.textContent;
@@ -35,6 +37,7 @@ else {
 }
 
 
+
 addCopyClipboardButton(productDescriptionElement);
 addCopyClipboardButton(productCodeElement);
 addCopyClipboardButton(serialnoElement);
@@ -42,6 +45,8 @@ addCopyClipboardButton(supplierRAElement);
 addCopyClipboardButton(orderNumberElement);
 addCopyClipboardButton(emailElement);
 addCopyClipboardButton(rano);
+//addDistiButton();
+addTestingAutofillButton();
 addMarkInButton();
 addEmailSearchButton();
 addProductCodeSearchButton();
@@ -57,6 +62,25 @@ if(productDescription.textContent.toLowerCase().includes('pccg') && productDescr
 else if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('bundle')) {
     loadSystemComponents();
     addSystemComponentsButton('Bundle Contents');
+}
+
+function getStockOnHand() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var dropdownBox = document.createElement('div');
+            var productsQuantityBox = xhr.responseXML.querySelector('#products_quantity');
+            var quantity = productsQuantityBox.getAttribute('value');
+            var sohElement = document.createElement('span');
+            sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
+            sohElement.style.float = 'right';
+            sohArea.parentElement.appendChild(sohElement);
+        }
+    };
+    //xhr.open("GET", "Product Preview.htm", true); //testing code
+    xhr.open("GET", "https://www.pccasegear.com/elgg/product.php?product_type=1&cPath=&pID=" + productId + "&search=&search_include_disabled=1&search_model=1&search_descriptions=0&action=new_product", true);
+    xhr.responseType = "document";
+    xhr.send();
 }
 
 function highlightQty(){
@@ -117,6 +141,48 @@ function loadSystemComponents() {
     xhr.send();
 }
 
+function addDistiButton() {
+    var dropdownDiv = document.createElement('div');
+    var dropdownContentDiv = document.createElement('div');
+    var buttonElement = document.createElement('a');
+    var buttonText = document.createTextNode('Disti Inc');
+    var link1 = document.createElement('a');
+    var link1Text = document.createTextNode('Return to Stock');
+    var link2 = document.createElement('a');
+    var link2Text = document.createTextNode('Ship From Warranties');
+    var link3 = document.createElement('a');
+    var link3Text = document.createTextNode('Ship From Warehouse');
+    link1.appendChild(link1Text);
+    link2.appendChild(link2Text);
+    link3.appendChild(link3Text);
+    buttonElement.setAttribute('class', 'topBarButton');
+    buttonElement.setAttribute('id', 'distiAF');
+    buttonElement.appendChild(buttonText);
+    dropdownDiv.setAttribute('class', 'topBarDropdown');
+    dropdownContentDiv.setAttribute('class', 'topBarDropdown-content');
+    dropdownContentDiv.appendChild(link1);
+    dropdownContentDiv.appendChild(link2);
+    dropdownContentDiv.appendChild(link3);
+    dropdownDiv.appendChild(buttonElement);
+    dropdownDiv.appendChild(dropdownContentDiv);
+    link1.addEventListener('click', function(){distiIncRTS();});
+    link2.addEventListener('click', function(){distiIncShipFromWarranties();});
+    link3.addEventListener('click', function(){distiIncShipFromWarehouse();});
+    topMenuBar.insertBefore(dropdownDiv, openLinkElement.nextSibling);
+}
+
+function distiIncRTS() {
+    alert('1');
+}
+
+function distiIncShipFromWarranties() {
+    alert('2');
+}
+
+function distiIncShipFromWarehouse() {
+    alert('3');
+}
+
 function addMarkInButton() {
     var buttonElement = document.createElement('a');
     var buttonText = document.createTextNode('Mark-in');
@@ -125,6 +191,27 @@ function addMarkInButton() {
     buttonElement.appendChild(buttonText);
     buttonElement.addEventListener('click', function(){markIn();});
     topMenuBar.insertBefore(buttonElement, openLinkElement.nextSibling);
+}
+
+function addTestingAutofillButton() {
+    var buttonElement = document.createElement('a');
+    var buttonText = document.createTextNode('Testing');
+    buttonElement.setAttribute('class', 'topBarButton');
+    buttonElement.setAttribute('id', 'testingAF');
+    buttonElement.setAttribute('title', 'Autofill fields for moving claim to testing status.');
+    buttonElement.appendChild(buttonText);
+    buttonElement.addEventListener('click', function(){testingAutofill();});
+    topMenuBar.insertBefore(buttonElement, openLinkElement.nextSibling);
+}
+
+function testingAutofill(){
+    var d = new Date();
+    var thisButton = document.querySelector('#testingAF');
+    autofillSupplierRA(('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + ' - Testing');
+    autofillPCCGComment('Your item has been received and the item is currently being tested.');
+    autofillStatus('Testing');
+    thisButton.style.borderStyle = 'solid';
+    thisButton.style.borderColor = 'red';
 }
 
 function markIn(){
@@ -242,6 +329,12 @@ styling.innerHTML = '.bodyButton{margin-left: 10; padding: 2px 3px 2px 3px; colo
     '.topBarButton{margin: 3px 20px 3px 20px; font-size: 10pt; font-weight: bold; padding: 2px 3px 2px 3px; color: white;  border-width: 2px; border-radius: 4px; background-color: #0000ff; cursor: default}' +
     '.topBarButton:hover{color: white; text-decoration: none; background-color: #0000b3;}' +
     '.topBarButton:active{color: white; background-color: #6600cc;}' +
+    '.topBarDropdown{position: relative; display: inline-block;}' +
+    '.topBarDropdown-content{display: none; position: absolute; background-color: #f9f9f9; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1;}' +
+    '.topBarDropdown-content a{color: black; padding: 12px 16px; text-decoration: none; display: block;}' +
+    '.topBarDropdown-content a:hover{background-color: #f1f1f1}' +
+    '.topBarDropdown:hover .topBarDropdown-content{display: block;} ' +
+    '.topBarDropdown:hover .topBarButton{background-color: #3e8e41;}' +
     '.autofillButton{background-color: #ffe8cc; cursor: default;}' +
     '.autofillButton:hover{background-color: #ffd199;}' +
     '.autofillButton:active{background-color: #ffba66;}' +
