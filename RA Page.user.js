@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.14
+// @version      1.16
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -22,9 +22,9 @@ var openLinkElement = document.querySelector('body > table:nth-child(5) > tbody 
 var PCCGCommentsElement = document.querySelector('#admin_note');
 var raStatusElement = document.querySelector('#status');
 var notifyCustomerCheckboxElement = document.querySelector('#notify');
-var productId = getProductId();
 var sohArea = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(8) > td:nth-child(5) > br:nth-child(5)');
 var month = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+var productId = getProductId();
 var productSOH = getStockOnHand();
 
 document.querySelector('#warranty_edit > table > tbody > tr:nth-child(6) > td:nth-child(4)').textContent = 'Stock on Hand:';
@@ -68,7 +68,6 @@ function getStockOnHand() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            var dropdownBox = document.createElement('div');
             var productsQuantityBox = xhr.responseXML.querySelector('#products_quantity');
             var quantity = productsQuantityBox.getAttribute('value');
             var sohElement = document.createElement('span');
@@ -215,10 +214,14 @@ function testingAutofill(){
     thisButton.style.borderColor = 'red';
 }
 
-function markIn(){
+function getDateDDMM(){
     var d = new Date();
+    return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2);
+}
+
+function markIn(){
     var thisButton = document.querySelector('#markInAF');
-    autofillSupplierRA(('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + ' - Item Received');
+    autofillSupplierRA(getDateDDMM() + ' - Item Received');
     autofillPCCGComment('Your item has been received and is in the queue for processing.');
     autofillStatus('Item received');
     thisButton.style.borderStyle = 'solid';
@@ -249,7 +252,7 @@ function addAcrAutofillButton() {
 function acrAutofill() {
     var d = new Date();
     var thisButton = document.querySelector('#acrAF');
-    autofillSupplierRA('ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2));
+    autofillSupplierRA(getDateDDMM() + '- ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2));
     supplierRAElement.select();
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
