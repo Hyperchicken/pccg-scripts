@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.16
+// @version      1.17
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -252,7 +252,7 @@ function addAcrAutofillButton() {
 function acrAutofill() {
     var d = new Date();
     var thisButton = document.querySelector('#acrAF');
-    autofillSupplierRA(getDateDDMM() + '- ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2));
+    autofillSupplierRA(getDateDDMM() + ' - ACR ' + month[d.getMonth()] + ' 0' + (Math.floor(Math.random() * 3) + 2));
     supplierRAElement.select();
     thisButton.style.borderStyle = 'solid';
     thisButton.style.borderColor = 'red';
