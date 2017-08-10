@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      1.18
+// @version      2.0
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
 // @match        http://localhost/RA%2090916%20-%20PCCG-AORUS1080TI.htm
 // @match http://localhost/Warranties%20-%20PC%20Case%20Gear.htm
+// @match http://localhost/RA%20page%20-%20no%20product%20code.htm
 // @grant        GM_setClipboard
 // ==/UserScript==
 
 var productDescriptionElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
 var orderNumberElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(13) > td:nth-child(2) > a:nth-child(1)');
-var productDescription = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var emailElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(9) > td:nth-child(2) > a:nth-child(2)');
 var serialnoElement = document.querySelector('#serialno');
 var supplierRAElement = document.querySelector('#supplier_ra');
@@ -23,11 +23,11 @@ var openLinkElement = document.querySelector('body > table:nth-child(5) > tbody 
 var PCCGCommentsElement = document.querySelector('#admin_note');
 var raStatusElement = document.querySelector('#status');
 var notifyCustomerCheckboxElement = document.querySelector('#notify');
+var stockAdjustButton = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(8) > td:nth-child(5) > img');
 var sohArea = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(8) > td:nth-child(5) > br:nth-child(5)');
 var month = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 var productId = getProductId();
 loadClaimDetails();
-getStockOnHand();
 
 
 //set Tab title text
@@ -35,13 +35,12 @@ if(typeof products_id !== 'undefined') {
     document.title = 'RA ' + rano.value + ' - ' + products_id.nextElementSibling.textContent;
 }
 else {
-    document.title = 'RA ' + rano.value + ' - ' + productDescription.textContent;
+    document.title = 'RA ' + rano.value + ' - ' + productDescriptionElement.textContent;
 }
 
 
 //add script buttons and features
 addCopyClipboardButton(productDescriptionElement);
-addCopyClipboardButton(productCodeElement);
 addCopyClipboardButton(serialnoElement);
 addCopyClipboardButton(supplierRAElement);
 addCopyClipboardButton(orderNumberElement);
@@ -51,17 +50,16 @@ addCopyClipboardButton(rano);
 addTestingAutofillButton();
 addMarkInButton();
 addEmailSearchButton();
-addProductCodeSearchButton();
 addAcrAutofillButton();
 addEmailAutofillButton();
 //highlightQty();
 
-//add check components button if a system RA
-if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('system')) {
+//add check components button if a system RA or bundle
+if(productDescriptionElement.textContent.toLowerCase().includes('pccg') && productDescriptionElement.textContent.toLowerCase().includes('system')) {
     loadSystemComponents();
     addSystemComponentsButton('System Components');
 }
-else if(productDescription.textContent.toLowerCase().includes('pccg') && productDescription.textContent.toLowerCase().includes('bundle')) {
+else if(productDescriptionElement.textContent.toLowerCase().includes('pccg') && productDescriptionElement.textContent.toLowerCase().includes('bundle')) {
     loadSystemComponents();
     addSystemComponentsButton('Bundle Contents');
 }
@@ -76,53 +74,60 @@ function loadClaimDetails() { //pulls claim details from new module and executes
             scriptText = scriptText.substr(20, scriptEndIndex - 26);
             console.log(scriptText); //PRINTS CLAIM DETAILS TO CONSOLE FOR DEV PURPOSES. Disable when complete
             window.claim = JSON.parse(scriptText);
+            var w = window.claim.warranty; //alias for warranty claim details
             //+++++++++++ execute new code from here +++++++++++
-            repairProductIds(window.claim.warranty.products_id);
+            repairProductIds(w.products_id, w.products_model, w.quantity);
+            displayStockOnHand(w.products_quantity, w.products_status, w.ETA_date, w.backorder_note);
+            //highlightQty(w.quantity);
             //+++++++++++ END new code execute +++++++++++
         }
     };
     xhr.open("GET", "warr1_new_module.html", true); //testing code
-    //xhr.open("GET", "product.php?cPath=&pID=" + productId + "&action=new_product_preview&read=only&product_type=1&", true);
+    //xhr.open("GET", "warranty_view.php?ra=", true);
     xhr.responseType = "document";
     xhr.send();
 }
 
-function repairProductIds(pid) {
-    
+function repairProductIds(pid, pcode, qty) {
+    if(productCodeElement === null){
+        productDescriptionElement.setAttribute('href', 'https://www.pccasegear.com/index.php?main_page=product_info&products_id=' + pid);
+        productCodeArea = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(3) > td:nth-child(3)');
+        productCodeArea.innerHTML = '<td class="formAreaTitle" valign="top">Product Code <input name="products_id" id="products_id" value="' + pcode + '" style="border:0;  background-color:#ECFFFF;font-family:Verdana,sans-serif; font-size:11px" type="hidden"><a href="https://www.pccasegear.com/elgg/purchase.php?search=yes&amp;supplier=&amp;products_id=' + pid + '" target="_blank">' + pcode + '</a><span style="color:#33cc33" title="The script has fixed the product code link and stock adjust function as they were broken :("> **</span>&nbsp;&nbsp;&nbsp;Qty: ' + qty;
+        productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
+        stockAdjustButton.setAttribute('onclick', "window.open( 'warranty_update_inventory.php?calim_id=80334&products_id=" + pid + "', 'myWindow', 'status = 1, height = 280, width = 400, left=500,top=200,resizable = 1' )");
+    }
+    addCopyClipboardButton(productCodeElement);
+    addProductCodeSearchButton();
 }
 
-function getStockOnHand() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var productsQuantityBox = xhr.responseXML.querySelector('#products_quantity');
-            var quantity = productsQuantityBox.getAttribute('value');
-            var sohElement = document.createElement('span');
-            sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
-            sohElement.style.float = 'right';
-            sohElement.setAttribute('title', 'Stock On Hand (refresh page to update)');
-            sohArea.parentElement.appendChild(sohElement);
-        }
-    };
-    //xhr.open("GET", "Product Preview.htm", true); //testing code
-    xhr.open("GET", "https://www.pccasegear.com/elgg/product.php?product_type=1&cPath=&pID=" + productId + "&search=&search_include_disabled=1&search_model=1&search_descriptions=0&action=new_product", true);
-    xhr.responseType = "document";
-    xhr.send();
+function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote) {
+    var sohElement = document.createElement('span');
+    var ETAElement = document.createElement('span');
+    var sohTitleText = 'Stock On Hand: ' + quantity;
+    sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
+    sohElement.style.float = 'right';
+    if(!listingEnabled) {
+        sohElement.style.textDecoration = 'line-through';
+        sohElement.style.textDecorationColor = 'red';
+        sohTitleText = sohTitleText + ' [LISTING INACTIVE]';
+    }
+    sohElement.setAttribute('title', sohTitleText);
+    sohArea.parentElement.appendChild(sohElement);
+    if(listingEnabled && quantity <= 0) {
+        ETAElement.innerHTML = '<b>ETA: </b>' + ETADate;
+        ETAElement.style.float = 'right';
+        ETAElement.setAttribute('title', 'Backorder Note: ' + backorderNote);
+        sohArea.parentElement.appendChild(document.createElement('br'));
+        sohArea.parentElement.appendChild(ETAElement);
+    }
 }
 
-function highlightQty(){
-    var qtyArea = productCodeElement.parentNode;
-    var qtyAreaText = qtyArea.textContent;
-    var qtyIndex = qtyAreaText.indexOf('Qty:') + 5;
-    var qty;
-    qtyAreaText = qtyAreaText.slice(qtyIndex);
-    var i = 0;
-    var done = false;
-    do{
-        if(isNaN(qtyAreaText.charAt(i))) done = true;
-        else{i++;}
-    }while(!done);
-    qty = qtyAreaText.substr(0, i);
+function highlightQty(qty){
+    qty = 2;
+    var qtyArea = productCodeElement.parentNode; //wont work if pid is broken
+    if(qty > 1) {
+        qtyArea.textContent.replace('Qty:', "<div style='{color: red}'>Qty:</div>");
+    }
 }
 
 function getProductId() {
@@ -346,6 +351,90 @@ function addCopyClipboardButton(element) {
     buttonElement.appendChild(buttonText);
     buttonElement.addEventListener('click', function(){GM_setClipboard(elementText);});
     element.parentElement.appendChild(buttonElement);
+}
+
+//allows easier manipulation of URLs.
+//https://www.thecodeship.com/web-development/javascript-url-object/
+function urlObject(options) {
+    "use strict";
+    /*global window, document*/
+
+    var url_search_arr,
+        option_key,
+        i,
+        urlObj,
+        get_param,
+        key,
+        val,
+        url_query,
+        url_get_params = {},
+        a = document.createElement('a'),
+        default_options = {
+            'url': window.location.href,
+            'unescape': true,
+            'convert_num': true
+        };
+
+    if (typeof options !== "object") {
+        options = default_options;
+    } else {
+        for (option_key in default_options) {
+            if (default_options.hasOwnProperty(option_key)) {
+                if (options[option_key] === undefined) {
+                    options[option_key] = default_options[option_key];
+                }
+            }
+        }
+    }
+
+    a.href = options.url;
+    url_query = a.search.substring(1);
+    url_search_arr = url_query.split('&');
+
+    if (url_search_arr[0].length > 1) {
+        for (i = 0; i < url_search_arr.length; i += 1) {
+            get_param = url_search_arr[i].split("=");
+
+            if (options.unescape) {
+                key = decodeURI(get_param[0]);
+                val = decodeURI(get_param[1]);
+            } else {
+                key = get_param[0];
+                val = get_param[1];
+            }
+
+            if (options.convert_num) {
+                if (val.match(/^\d+$/)) {
+                    val = parseInt(val, 10);
+                } else if (val.match(/^\d+\.\d+$/)) {
+                    val = parseFloat(val);
+                }
+            }
+
+            if (url_get_params[key] === undefined) {
+                url_get_params[key] = val;
+            } else if (typeof url_get_params[key] === "string") {
+                url_get_params[key] = [url_get_params[key], val];
+            } else {
+                url_get_params[key].push(val);
+            }
+
+            get_param = [];
+        }
+    }
+
+    urlObj = {
+        protocol: a.protocol,
+        hostname: a.hostname,
+        host: a.host,
+        port: a.port,
+        hash: a.hash.substr(1),
+        pathname: a.pathname,
+        search: a.search,
+        parameters: url_get_params
+    };
+
+    return urlObj;
 }
 
 var styling = document.createElement('style');
