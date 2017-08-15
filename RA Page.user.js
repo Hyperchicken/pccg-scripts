@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.0
+// @version      2.1
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
+// @match        http://localhost/RA%2090916%20-%20PCCG-AORUS1080TI.htm
 // @grant        GM_setClipboard
 // ==/UserScript==
 
@@ -70,7 +71,7 @@ function loadClaimDetails() { //pulls claim details from new module and executes
             var scriptText = xhr.responseXML.querySelector('head > script:nth-child(22)').innerHTML;
             var scriptEndIndex = scriptText.indexOf('window.categories');
             scriptText = scriptText.substr(20, scriptEndIndex - 26);
-            //console.log(scriptText); //PRINTS CLAIM DETAILS TO CONSOLE FOR DEV PURPOSES. Disable when complete
+            console.log(scriptText); //PRINTS CLAIM DETAILS TO CONSOLE FOR DEV PURPOSES. Disable when complete
             window.claim = JSON.parse(scriptText);
             var w = window.claim.warranty; //alias for warranty claim details
             //+++++++++++ execute new code from here +++++++++++
@@ -93,6 +94,12 @@ function repairProductIds(pid, pcode, qty) {
         productCodeArea.innerHTML = '<td class="formAreaTitle" valign="top">Product Code <input name="products_id" id="products_id" value="' + pcode + '" style="border:0;  background-color:#ECFFFF;font-family:Verdana,sans-serif; font-size:11px" type="hidden"><a href="https://www.pccasegear.com/elgg/purchase.php?search=yes&amp;supplier=&amp;products_id=' + pid + '" target="_blank">' + pcode + '</a><span style="color:#33cc33" title="The script has fixed the product code link and stock adjust function as they were broken :("> **</span>&nbsp;&nbsp;&nbsp;Qty: ' + qty;
         productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
         stockAdjustButton.setAttribute('onclick', "window.open( 'warranty_update_inventory.php?calim_id=80334&products_id=" + pid + "', 'myWindow', 'status = 1, height = 280, width = 400, left=500,top=200,resizable = 1' )");
+    }
+    else if (productCodeElement.textContent != pcode)
+    {
+        productCodeElement.style.color = 'red';
+        productCodeElement.setAttribute('title', 'Script has determined this product code to be wrong or outdated. Product code should be: ' + pcode);
+        productCodeElement.textContent = productCodeElement.textContent + ' | ' + pcode;
     }
     addCopyClipboardButton(productCodeElement);
     addProductCodeSearchButton();
