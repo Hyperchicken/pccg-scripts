@@ -115,7 +115,7 @@ function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote, pr
         sohElement.style.textDecorationColor = 'red';
         sohElement.innerHTML = sohElement.innerHTML + ' [INACTIVE]';
         sohTitleText = sohTitleText + ' [LISTING INACTIVE]';
-    } else sohElement.style.textDecorationColor = 'green';
+    } else sohElement.style.textDecorationColor = '#33cc33';
     sohElement.setAttribute('title', sohTitleText);
     sohArea.parentElement.appendChild(sohElement);
     if(listingEnabled && quantity <= 0 && productCategoryId != '513') {
