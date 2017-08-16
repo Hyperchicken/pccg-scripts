@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.2
+// @version      2.3
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
+// @match        http://localhost/RA%2090916%20-%20PCCG-AORUS1080TI.htm
 // @grant        GM_setClipboard
 // ==/UserScript==
 
@@ -92,7 +93,7 @@ function repairProductIds(pid, pcode, qty) {
         productCodeArea = document.querySelector('#warranty_edit > table > tbody > tr:nth-child(3) > td:nth-child(3)');
         productCodeArea.innerHTML = '<td class="formAreaTitle" valign="top">Product Code <input name="products_id" id="products_id" value="' + pcode + '" style="border:0;  background-color:#ECFFFF;font-family:Verdana,sans-serif; font-size:11px" type="hidden"><a href="https://www.pccasegear.com/elgg/purchase.php?search=yes&amp;supplier=&amp;products_id=' + pid + '" target="_blank">' + pcode + '</a><span style="color:#33cc33" title="The script has fixed the product code link and stock adjust function as they were broken :("> **</span>&nbsp;&nbsp;&nbsp;Qty: ' + qty;
         productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
-        stockAdjustButton.setAttribute('onclick', "window.open( 'warranty_update_inventory.php?calim_id=80334&products_id=" + pid + "', 'myWindow', 'status = 1, height = 280, width = 400, left=500,top=200,resizable = 1' )");
+        stockAdjustButton.setAttribute('onclick', "window.open( 'warranty_update_inventory.php?calim_id=" + claimId + "&products_id=" + pid + "', 'myWindow', 'status = 1, height = 280, width = 400, left=500,top=200,resizable = 1' )");
     }
     else if (productCodeElement.textContent != pcode)
     {
