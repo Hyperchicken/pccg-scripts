@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.1
+// @version      2.2
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -98,7 +98,7 @@ function repairProductIds(pid, pcode, qty) {
     else if (productCodeElement.textContent != pcode)
     {
         productCodeElement.style.color = 'red';
-        productCodeElement.setAttribute('title', 'Script has determined this product code to be wrong or outdated. Product code should be: ' + pcode);
+        productCodeElement.setAttribute('title', 'Script has found multiple product codes for this item. Please double check which product code is correct.');
         productCodeElement.textContent = productCodeElement.textContent + ' | ' + pcode;
     }
     addCopyClipboardButton(productCodeElement);
@@ -111,11 +111,12 @@ function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote, pr
     var sohTitleText = 'Stock On Hand: ' + quantity;
     sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
     sohElement.style.float = 'right';
+    sohElement.style.textDecoration = 'underline';
     if(!listingEnabled) {
-        sohElement.style.textDecoration = 'line-through';
         sohElement.style.textDecorationColor = 'red';
+        sohElement.innerHTML = sohElement.innerHTML + ' [INACTIVE]';
         sohTitleText = sohTitleText + ' [LISTING INACTIVE]';
-    }
+    } else sohElement.style.textDecorationColor = 'green';
     sohElement.setAttribute('title', sohTitleText);
     sohArea.parentElement.appendChild(sohElement);
     if(listingEnabled && quantity <= 0 && productCategoryId != '513') {
