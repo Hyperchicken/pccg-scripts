@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.3
+// @version      2.4
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -112,7 +112,7 @@ function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote, pr
     sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
     sohElement.style.float = 'right';
     sohElement.style.textDecoration = 'underline';
-    if(!listingEnabled) {
+    if(listingEnabled == '0') {
         sohElement.style.textDecorationColor = 'red';
         sohElement.innerHTML = sohElement.innerHTML + ' [INACTIVE]';
         sohTitleText = sohTitleText + ' [LISTING INACTIVE]';
