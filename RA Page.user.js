@@ -5,7 +5,6 @@
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
-// @match        http://localhost/RA%2090916%20-%20PCCG-AORUS1080TI.htm
 // @grant        GM_setClipboard
 // ==/UserScript==
 
