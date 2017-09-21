@@ -1,13 +1,12 @@
 // ==UserScript==
-// @name        Warranty Slip Editor
-// @namespace   http://hyperchicken.com
-// @description Adds the ability to edit the values in a warranty slip, including adding/deleting rows to the product table and setting the shipping method. By Petar Stankovic.
-// @include     https://www.pccasegear.com/elgg/warranty_invoice.php?*	
-// @version     1.2
-// @grant       none
+// @name         Warranty Slip Editor
+// @namespace    Hyperchicken.com
+// @version      1.3
+// @description  Adds the ability to edit the values in a warranty slip, including adding/deleting rows to the product table and setting the shipping method.
+// @author       Petar Stankovic
+// @match        https://www.pccasegear.com/elgg/warranty_invoice.php*
+// @grant        GM_setClipboard
 // ==/UserScript==
-
-
 
 //SELECTORS
 //shipping address box selector
@@ -37,6 +36,10 @@ document.querySelector('body > table:nth-child(1) > tbody:nth-child(1) > tr:nth-
 //date selector
 document.querySelector('#prices2 > td:nth-child(2)').setAttribute('id', 'slipDate');
 slipDate.setAttribute('class', 'editable');
+
+//shipping address label text selector
+document.querySelector('body > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td.main').setAttribute('id', 'shippingAddressLabel');
+shippingAddressLabel.setAttribute('class', 'editable');
 
 
 //make non-dynamic boxes editable
@@ -81,11 +84,16 @@ updateTableCheckboxButtons();
 addTooltips();
 
 
+var shippingAddressText = shippingAddress.innerHTML;
+shippingAddressText.replace(/<br>/gi, "&nbsp");
+shippingAddressLabel.addEventListener('click', function(){GM_setClipboard(shippingAddressText);});
+
+
 //FUNCTIONS
 function addTooltips() {
-  var addNewRowButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(1)')
-  var deleteRowButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(2)')
-  var copyPasteButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(4)')
+  var addNewRowButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(1)');
+  var deleteRowButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(2)');
+  var copyPasteButtons = document.querySelectorAll('.dataTableRow td:nth-of-type(4)');
   
   for (i = 0; i < addNewRowButtons.length; i++) {
     var tooltip = document.createElement('span');
@@ -156,7 +164,7 @@ function makeTableElementsClickable() {
   var i;
   for (i = 0; i < tableElements.length; i++) {
     const elementIndex = i;
-    tableListenerHandler[elementIndex] = function(){editTableElement(elementIndex)};
+    tableListenerHandler[elementIndex] = function(){editTableElement(elementIndex);};
     tableElements[elementIndex].addEventListener('click', tableListenerHandler[elementIndex]);
   }
 }
@@ -175,13 +183,13 @@ function updateTableCheckboxButtons() {
   var checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(1)');
   for (i = 0; i < checkboxes.length; i++) {
     const elementIndex = i;
-    addRowListenerHandler[elementIndex] = function(){addNewRow(elementIndex)};
+    addRowListenerHandler[elementIndex] = function(){addNewRow(elementIndex);};
     checkboxes[elementIndex].addEventListener('click', addRowListenerHandler[elementIndex]);
   }
   checkboxes = document.querySelectorAll('.dataTableRow td:nth-of-type(2)');
   for (i = 0; i < checkboxes.length; i++) {
     const elementIndex = i;
-    deleteRowListenerHandler[elementIndex] = function(){deleteRow(elementIndex)};
+    deleteRowListenerHandler[elementIndex] = function(){deleteRow(elementIndex);};
     checkboxes[elementIndex].addEventListener('click', deleteRowListenerHandler[elementIndex]);
   }
   
@@ -243,11 +251,10 @@ function saveShippingMethod() {
   if (selectedOptionText == '** Select shipping method **') selectedOptionText = 'eParcel Standard';
   shippingMethod.innerHTML = selectedOptionText;
   
-  if (selectedOptionText == 'eParcel Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - eP S';
-  else if (selectedOptionText == 'eParcel PP Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - eP S PP';
-  else if (selectedOptionText == 'eParcel Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - eP E';
-  else if (selectedOptionText == 'Startrack Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ST S';
-  else if (selectedOptionText == 'Startrack Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - ST E';
+  if (selectedOptionText == 'eParcel Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - <span style="font-size: 18;">eP S</span>';
+  else if (selectedOptionText == 'eParcel Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - <span style="font-size: 18;">eP E</span>';
+  else if (selectedOptionText == 'Startrack Standard') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - <span style="font-size: 18;">ST S</span>';
+  else if (selectedOptionText == 'Startrack Express') warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip - <span style="font-size: 18;">ST E</span>';
   else if (selectedOptionText == 'Store Pick Up') {
     warrantyPackingSlipText.innerHTML = 'Warranty Packing Slip';
     shippingAddress.innerHTML = '<b>>>STORE PICKUP<<</b>'; }
@@ -264,7 +271,7 @@ function editTableElement() {
   var currentText = '';
   
   //make copy/paste column show whole row HTML
-  if ((currentElement - 1) % 8 == 0) currentText = '<tr class="dataTableRow">' + tableElements[currentElement].parentNode.innerHTML.trim() + '</tr>';
+  if ((currentElement - 1) % 8 === 0) currentText = '<tr class="dataTableRow">' + tableElements[currentElement].parentNode.innerHTML.trim() + '</tr>';
   else currentText = tableElements[currentElement].innerHTML;
   
   newTextBox.setAttribute('type', 'text');
@@ -274,7 +281,7 @@ function editTableElement() {
   tableElements[currentElement].innerHTML = '';
   tableElements[currentElement].appendChild(newTextBox);
   newTextBox.select();
-  newTextBox.addEventListener('blur', function(){saveTableElement(currentElement)});
+  newTextBox.addEventListener('blur', function(){saveTableElement(currentElement);});
 }
 
 function saveTableElement() {
@@ -282,7 +289,7 @@ function saveTableElement() {
   const elementIndex = arguments[0];
   var inputText = tableElements[elementIndex].firstChild.value;
   
-  if ((elementIndex - 1) % 8 == 0) {
+  if ((elementIndex - 1) % 8 === 0) {
     var row = Math.floor(elementIndex / 8);
     tableElements[elementIndex].innerHTML = '&nbsp;';
     addNewRow(row, inputText);
@@ -302,7 +309,7 @@ function editRANumber() {
   
   newTextBox.setAttribute('id', 'raNumField');
   newTextBox.setAttribute('type', 'text');
-  newTextBox.setAttribute('value', currentText)
+  newTextBox.setAttribute('value', currentText);
   ra_number.innerHTML = '';
   ra_number.appendChild(newTextBox);
   newTextBox.select();
@@ -316,7 +323,7 @@ function editSlipDate() {
   
   newTextBox.setAttribute('id', 'slipDateField');
   newTextBox.setAttribute('type', 'text');
-  newTextBox.setAttribute('value', currentText)
+  newTextBox.setAttribute('value', currentText);
   slipDate.innerHTML = '';
   slipDate.appendChild(newTextBox);
   newTextBox.select();
@@ -326,7 +333,7 @@ function editSlipDate() {
 function editShippingAddress() {
   shippingAddressBox.removeEventListener('click', editShippingAddress);
   var currentHTML = this.innerHTML;
-  var newForm = document.createElement('form')
+  var newForm = document.createElement('form');
   var newTextArea = document.createElement('textarea');
 
   newTextArea.setAttribute('id', 'shippingAddressField');
@@ -344,7 +351,7 @@ function editShippingAddress() {
 function editBillingAddress() {
   billingAddressBox.removeEventListener('click', editBillingAddress);
   var currentHTML = this.innerHTML;
-  var newForm = document.createElement('form')
+  var newForm = document.createElement('form');
   var newTextArea = document.createElement('textarea');
 
   newTextArea.setAttribute('id', 'billingAddressField');
@@ -369,7 +376,7 @@ function saveShippingAddress() {
   }
   
   shippingAddressBox.innerHTML = newText;
-  shippingAddress.addEventListener('click', editShippingAddress)
+  shippingAddress.addEventListener('click', editShippingAddress);
 }
 
 function saveBillingAddress() {
@@ -382,7 +389,7 @@ function saveBillingAddress() {
   }
   
   billingAddressBox.innerHTML = newText;
-  billingAddress.addEventListener('click', editBillingAddress)
+  billingAddress.addEventListener('click', editBillingAddress);
 }
 
 function saveRANumber() {
