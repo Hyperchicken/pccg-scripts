@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.4
+// @version      2.5
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -96,6 +96,12 @@ function repairProductIds(pid, pcode, qty) {
     }
     else if (productCodeElement.textContent != pcode)
     {
+        sohWarningElement = document.createElement('span');
+        sohWarningElement.innerHTML = '<b>&nbsp???</b>';
+        sohWarningElement.setAttribute('title', 'MULTIPLE PRODUCT CODES FOUND. Please double check stock levels. Abacus will adjust: ' + productCodeElement.textContent);
+        sohWarningElement.style.color = 'red';
+        sohWarningElement.style.float = 'right';
+        sohArea.parentElement.appendChild(sohWarningElement);
         productCodeElement.style.color = 'red';
         productCodeElement.setAttribute('title', 'Script has found multiple product codes for this item. Please double check which product code is correct.');
         productCodeElement.textContent = productCodeElement.textContent + ' | ' + pcode;
