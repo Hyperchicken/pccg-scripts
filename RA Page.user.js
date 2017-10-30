@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.5
+// @version      2.6
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
 // @grant        GM_setClipboard
 // ==/UserScript==
+
 
 var productDescriptionElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(3) > a:nth-child(1)');
 var productCodeElement = document.querySelector('#warranty_edit > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(3) > a:nth-child(2)');
@@ -101,10 +102,15 @@ function repairProductIds(pid, pcode, qty) {
         sohWarningElement.setAttribute('title', 'MULTIPLE PRODUCT CODES FOUND. Please double check stock levels. Abacus will adjust: ' + productCodeElement.textContent);
         sohWarningElement.style.color = 'red';
         sohWarningElement.style.float = 'right';
-        sohArea.parentElement.appendChild(sohWarningElement);
-        productCodeElement.style.color = 'red';
-        productCodeElement.setAttribute('title', 'Script has found multiple product codes for this item. Please double check which product code is correct.');
-        productCodeElement.textContent = productCodeElement.textContent + ' | ' + pcode;
+        //sohArea.parentElement.appendChild(sohWarningElement);
+        if(pcode.startsWith('RZ'))
+        {
+            var oldCode = productCodeElement.textContent;
+            productCodeElement.textContent = pcode;
+            productCodeElement.style.color = '#00abb5';
+            productCodeElement.setAttribute('title', 'This is probably a Razer product where the product code has been updated. The old code was: ' + oldCode);
+        }
+        //productCodeElement.textContent = productCodeElement.textContent + ' | ' + pcode;
     }
     addCopyClipboardButton(productCodeElement);
     addProductCodeSearchButton();
@@ -170,11 +176,18 @@ function loadSystemComponents() {
             dropdownBox.setAttribute('class', 'dropdown-content');
             dropdownBox.setAttribute('id', 'dropdownBox');
             dropdownBox.style.display = 'none';
-            var componentLinks = componentsHTML.getElementsByTagName('a');
-            for (var i = 0; i < componentLinks.length; i++) {componentLinks[i].setAttribute('target', '_blank;');} //make links open in new tab
-            dropdownBox.appendChild(componentsHTML);
+            if(componentsHTML === undefined) {
+                document.getElementById('sysComponentsBtn').textContent = 'Components list failed to load!';
+                dropdownBox.innerHTML = "Looks like the product preview module is either broken or has been updated and broke this script.";
+            }
+            else{
+                var componentLinks = componentsHTML.getElementsByTagName('a');
+                for (var i = 0; i < componentLinks.length; i++) {componentLinks[i].setAttribute('target', '_blank;');} //make links open in new tab
+                dropdownBox.appendChild(componentsHTML);
+
+            }
             dropdownBox.addEventListener('mouseleave', function(){document.querySelector('#dropdownBox').style.display = 'none';});
-            document.querySelector('#sysComponentsBox').appendChild(dropdownBox);
+                document.querySelector('#sysComponentsBox').appendChild(dropdownBox);
         }
         if (this.readyState == 4 && this.status != 200) document.getElementById('sysComponentsBtn').textContent = 'System Components (' + this.statusText + ')';
     };
