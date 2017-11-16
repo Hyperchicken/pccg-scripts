@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.6
+// @version      2.7
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -76,7 +76,7 @@ function loadClaimDetails() { //pulls claim details from new module and executes
             var w = window.claim.warranty; //alias for warranty claim details
             //+++++++++++ execute new code from here +++++++++++
             repairProductIds(w.products_id, w.products_model, w.quantity);
-            displayStockOnHand(w.products_quantity, w.products_status, w.ETA_date, w.backorder_note, w.master_categories_id);
+            displayStockOnHand(w.products_quantity, w.products_status, w.ETA_date, w.backorder_note, w.master_categories_id, w.products_model);
             //highlightQty(w.quantity);
             //+++++++++++ END new code execute +++++++++++
         }
@@ -116,27 +116,41 @@ function repairProductIds(pid, pcode, qty) {
     addProductCodeSearchButton();
 }
 
-function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote, productCategoryId) {
+function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote, productCategoryId, productModel) {
     var sohElement = document.createElement('span');
     var ETAElement = document.createElement('span');
-    var sohTitleText = 'Stock On Hand: ' + quantity;
-    sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
-    sohElement.style.float = 'right';
-    sohElement.style.textDecoration = 'underline';
-    if(listingEnabled == '0') {
-        sohElement.style.textDecorationColor = 'red';
-        sohElement.innerHTML = sohElement.innerHTML + ' [INACTIVE]';
-        sohTitleText = sohTitleText + ' [LISTING INACTIVE]';
-    } else sohElement.style.textDecorationColor = '#33cc33';
-    sohElement.setAttribute('title', sohTitleText);
-    sohArea.parentElement.appendChild(sohElement);
-    if(listingEnabled && quantity <= 0 && productCategoryId != '513') {
-        ETAElement.innerHTML = '<b>ETA: </b>' + ETADate;
-        ETAElement.style.float = 'right';
-        ETAElement.setAttribute('title', 'Backorder Note: ' + backorderNote);
-        sohArea.parentElement.appendChild(document.createElement('br'));
-        sohArea.parentElement.appendChild(ETAElement);
+    var sohTitleText;
+    if(productModel.startsWith('LOL-')) //for logitech products, too lazy to pull the correct SOH cause of poor backend coding
+    {
+        sohTitleText = 'Check SOH manually';
+        sohElement.innerHTML = '<i> Check SOH manually </i>';
+        sohElement.style.float = 'right';
+        sohElement.style.textDecoration = 'underline';
+        sohElement.setAttribute('title', sohTitleText);
+        sohArea.parentElement.appendChild(sohElement);
     }
+    else
+    {
+        sohTitleText = 'Stock On Hand: ' + quantity;
+        sohElement.innerHTML = '<b> SOH: ' + quantity + '</b>';
+        sohElement.style.float = 'right';
+        sohElement.style.textDecoration = 'underline';
+        if(listingEnabled == '0') {
+            sohElement.style.textDecorationColor = 'red';
+            sohElement.innerHTML = sohElement.innerHTML + ' [INACTIVE]';
+            sohTitleText = sohTitleText + ' [LISTING INACTIVE]';
+        } else sohElement.style.textDecorationColor = '#33cc33';
+        sohElement.setAttribute('title', sohTitleText);
+        sohArea.parentElement.appendChild(sohElement);
+        if(listingEnabled && quantity <= 0 && productCategoryId != '513') {
+            ETAElement.innerHTML = '<b>ETA: </b>' + ETADate;
+            ETAElement.style.float = 'right';
+            ETAElement.setAttribute('title', 'Backorder Note: ' + backorderNote);
+            sohArea.parentElement.appendChild(document.createElement('br'));
+            sohArea.parentElement.appendChild(ETAElement);
+        }
+    }
+
 }
 
 function highlightQty(qty){
