@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RA Page Enhancements
 // @namespace    www.hyperchicken.com
-// @version      2.8
+// @version      2.9
 // @description  Adds new buttons and features to warranty claim pages.
 // @author       Petar Stankovic
 // @match        https://www.pccasegear.com/elgg/warranty_request.php?*
@@ -116,10 +116,11 @@ function repairProductIds(pid, pcode, qty) {
     addProductCodeSearchButton();
 }
 
-function displayStockOnHand(quantity, listingEnabled, ETADate, backorderNote, productCategoryId, productModel) {
+function displayStockOnHand(quantityx, listingEnabled, ETADate, backorderNote, productCategoryId, productModel) {
     var sohElement = document.createElement('span');
     var ETAElement = document.createElement('span');
     var sohTitleText;
+    var quantity = 69;
     if(productModel.startsWith('LOL-')) //for logitech products, too lazy to pull the correct SOH cause of poor backend coding
     {
         sohTitleText = 'Check SOH manually';
@@ -389,6 +390,13 @@ function addCopyClipboardButton(element) {
     buttonElement.appendChild(buttonText);
     buttonElement.addEventListener('click', function(){GM_setClipboard(elementText);});
     element.parentElement.appendChild(buttonElement);
+}
+
+function yeet() {
+    let ranumber = rano.value;
+    if(ranumber.slice(-2) == "420") {
+        setTimeout(function(){alert("That's a dank RA 🌿");}, 30000);
+    }
 }
 
 //allows easier manipulation of URLs.
